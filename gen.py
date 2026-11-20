@@ -44,6 +44,8 @@ FONT_PATHS = {
         "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     ],
+    "sans_cond": ["/usr/share/fonts/truetype/noto/NotoSansDisplay-Condensed.ttf"],
+    "sans_cond_bold": ["/usr/share/fonts/truetype/noto/NotoSansDisplay-CondensedBold.ttf"],
 }
 
 
@@ -112,6 +114,16 @@ BRIEFS = [
     (38, "NEW DELHI", "Sensex surges ~1,000 pts to 83,021; Goldman upgrades India."),
     (39, "SHENZHEN", "APEC leaders meet in Shenzhen; trade and the Iran war on the agenda."),
     (40, "WORLDWIDE", "World Children's Day marked around the globe."),
+    (41, "BRUSSELS", "Second EU-UK summit opens in Brussels. [Consilium]"),
+    (42, "BERLIN", "Kushner: Europe is united on Ukraine after Thursday's Coalition of the Willing meeting; US envoys to brief Moscow. [NewKerala]"),
+    (43, "MANILA", "ASEAN+3 leaders adopt pacts on maritime trade, food and energy resilience. [Context.ph]"),
+    (44, "MANILA", "Philippine industry urges a reciprocal US trade deal, warns against concessions. [Context.ph]"),
+    (45, "MANILA", "PAL seals a Boeing–GE deal for 15 Dreamliners. [Context.ph]"),
+    (46, "LONDON", "Gold slides 2.7% to $3,625, lowest in over a year. [MarketIndex]"),
+    (47, "SYDNEY", "Asian stocks extend losses; global equities head for longest slide in three years. [MarketIndex]"),
+    (48, "CANBERRA", "Australia sheds 43,600 jobs in October; unemployment rises to 4.9%. [MarketIndex]"),
+    (49, "CHICAGO", "Fed's Goolsbee does not rule out a bigger December rate rise. [MarketIndex]"),
+    (50, "SACRAMENTO", "Nvidia faces a California inquiry over chips reaching China. [MarketIndex]"),
 ]
 
 STATS = [
@@ -123,16 +135,25 @@ STATS = [
     ("83,021", "Sensex record close as Goldman upgrades India"),
 ]
 REGIONS = [
-    ("EUROPE", 7, (41, 87, 134)),
-    ("THE AMERICAS", 10, (47, 107, 74)),
-    ("ASIA-PACIFIC", 15, RED),
-    ("MIDEAST", 2, (155, 114, 42)),
-    ("AFRICA", 1, (125, 77, 58)),
-    ("OCEANIA", 3, (42, 109, 115)),
-    ("WORLD", 2, (103, 107, 115)),
+    ("EUROPE", 10, (41, 87, 152), (105, 174, 252), (4, 5, 10, 15, 18, 23, 35, 41, 42, 46)),
+    ("THE AMERICAS", 12, RED, (250, 113, 124), (2, 6, 9, 16, 21, 22, 28, 29, 36, 37, 49, 50)),
+    ("ASIA-PACIFIC", 20, (111, 65, 150), (195, 143, 246), (1, 7, 12, 13, 19, 20, 24, 25, 27, 30, 31, 33, 34, 38, 39, 43, 44, 45, 47, 48)),
+    ("MIDEAST", 2, (139, 95, 24), (241, 182, 78), (3, 26)),
+    ("AFRICA", 1, (47, 107, 74), (128, 209, 120), (32,)),
+    ("OCEANIA", 3, (32, 110, 114), (89, 209, 200), (11, 14, 17)),
+    ("WORLD", 2, (103, 107, 115), (181, 189, 199), (8, 40)),
 ]
-DATE_CHECK = "The Shenzhen summit's first meeting · the ICJ's genocide verdict itself · GTA VI's midnight launch in New Zealand · Anthropic's record IPO debut · Henry Nicholls' 113 not out on day one · Modi inaugurating the FICCI centenary · the first COP31 draft · a US court's summonses for Doval and Goel."
-SOURCES = "Sources: Reuters, AP, AFP, BBC, IMD, NASA. Original drawings."
+REGION_COLORS = {number: (color, map_color) for _, _, color, map_color, numbers in REGIONS for number in numbers}
+TIMELINE = [
+    ("OVERNIGHT", "Crimean Bridge hit a third time"),
+    ("~06:00 UTC", "APEC leaders meet in Shenzhen"),
+    ("~10:00 UTC", "Trilateral declaration issued"),
+    ("~14:00 UTC", "Houthi missile hits Riyadh KAFD"),
+    ("EVENING", "Akvan makes landfall in Odisha"),
+    ("LATE", "Wall Street slides; Dow −1,101"),
+]
+DATE_CHECK = "The Shenzhen summit's first meeting · the ICJ's genocide verdict itself · GTA VI's midnight launch in New Zealand · Anthropic's record IPO debut · Henry Nicholls' 113 not out on day one · Modi inaugurating the FICCI centenary · the first COP31 draft · a US court's summonses for Doval and Goel. · the Philippines–Chile trade deal, signed Thursday · US jobless claims at 203,000, released Thursday"
+SOURCES = "Sources: Reuters, AP, AFP, BBC, IMD, NASA, Consilium, MarketIndex, NewKerala. Original drawings."
 FOOTER = "Every story here happened, or was first reported, on Friday 20 November 2026. Disputed claims are attributed, not stated as fact."
 
 
@@ -155,21 +176,6 @@ def wrap(text, width, kind, size):
     if current:
         lines.append(current)
     return lines
-
-
-BRIEF_CUTS = {
-    14: "Fiji declares a national disaster over drought.",
-    19: "PM Takaichi calls for continued dialogue with China.",
-    20: "The Sensex gains 700 points on Thursday.",
-    21: "The St. Johns River hits 38.3 ft.",
-    22: "GTA VI festival on Saturday. [FORECAST]",
-    24: "Korea's National Museum draws record crowds.",
-    28: "GTA VI reviews land.",
-    29: "Snow falls across the Sierra.",
-    30: "Bitcoin steadies above $93,000.",
-    38: "Sensex surges ~1,000 pts to 83,021.",
-    39: "APEC leaders meet in Shenzhen.",
-}
 
 
 class Page:
@@ -477,12 +483,10 @@ def draw_card(page, story, left, top, width, art_height, row_bottom):
 
 
 def rich_tokens(number, place, text):
-    tokens = [(str(number), "sans_bold", RED)]
-    tokens.extend((word, "sans_bold", INK) for word in place.split())
-    tokens.append(("—", "sans", SLATE))
+    tokens = [(f"{number} {place}", "sans_cond_bold", INK), ("—", "sans_cond", SLATE)]
     for word in text.split():
         tagged = word in ("[CLAIM]", "[FORECAST]")
-        tokens.append((word, "sans_bold" if tagged else "sans", RED if tagged else SLATE))
+        tokens.append((word, "sans_cond_bold" if tagged else "sans_cond", RED if tagged else SLATE))
     return tokens
 
 
@@ -508,23 +512,24 @@ def rich_lines(tokens, width, size):
 def draw_briefs(page, left, top, width):
     column_width = (width - 12) / 2
     size = 9.5
-    leading = 10.5
+    leading = 9.5
+    entries = [(number, rich_lines(rich_tokens(number, place, text), column_width - 8, size)) for number, place, text in BRIEFS]
+    heights = [len(lines) * leading + 0.5 for _, lines in entries]
+    split = min(range(1, len(entries)), key=lambda index: abs(sum(heights[:index]) - sum(heights[index:])))
     end_positions = []
-    for column_index, entries in enumerate((BRIEFS[:14], BRIEFS[14:])):
+    for column_index, column in enumerate((entries[:split], entries[split:])):
         cursor = top
-        for number, place, original in entries:
-            text = BRIEF_CUTS.get(number, original)
-            if number in BRIEF_CUTS:
-                untagged = text.replace(" [FORECAST]", "").rstrip(".")
-                if not original.startswith(untagged):
-                    raise ValueError(f"Brief {number} is not a trailing cut")
-            tokens = rich_tokens(number, place, text)
-            lines = rich_lines(tokens, column_width, size)
+        column_left = left + column_index * (column_width + 12)
+        for number, lines in column:
+            page.ellipse((column_left, cursor + 3, column_left + 4, cursor + 7), REGION_COLORS[number][0])
             for line_index, line in enumerate(lines):
-                horizontal = left + column_index * (column_width + 12)
+                horizontal = column_left + 7
+                baseline = cursor + line_index * leading + 7.5
                 for word, kind, color, space, word_width in line:
                     horizontal += space
-                    page.text(word, (horizontal, cursor + line_index * leading, horizontal + word_width + 0.6, cursor + line_index * leading + 10.5), kind, size, color, max_lines=1)
+                    bounds = font(kind, size).getbbox(word, anchor="ls")
+                    ink_top = baseline + bounds[1] / SCALE
+                    page.text(word, (horizontal + bounds[0] / SCALE, ink_top, horizontal + word_width + 1, baseline + bounds[3] / SCALE), kind, size, color, max_lines=1)
                     horizontal += word_width
             cursor += len(lines) * leading + 0.5
         end_positions.append(cursor)
@@ -568,19 +573,22 @@ def draw_map(page, box):
     map_left = left + 8
     map_top = top + 23
     map_width = width - 19
-    map_height = min(119, bottom - top - 61)
+    map_height = min(119, bottom - top - 67)
     for horizontal in range(4, 104, 2):
         for vertical in range(0, 100, 4):
             if any(inside_polygon(horizontal, vertical, continent) for continent in continents):
                 center_horizontal = map_left + horizontal / 100 * map_width
                 center_vertical = map_top + vertical / 100 * map_height
                 page.ellipse((center_horizontal - 1, center_vertical - 1, center_horizontal + 1, center_vertical + 1), TAN)
-    brief_locations = [(178, -18), (36, 45), (-67, 10), (149, -35), (23, 43), (140, 36), (77, 29), (-82, 29), (-80, 26), (8.5, 47), (127, 38), (70, 22), (55, 25), (73, 19), (-118, 34), (-120, 39), (104, 1), (77, 29), (33, 16), (73, 33), (116, 40), (4, 51), (-77, 39), (-98, 30), (77, 29), (114, 23), (0, 0)]
-    for longitude, latitude in brief_locations:
+    brief_locations = [(178, -18), (36, 45), (-67, 10), (149, -35), (23, 43), (140, 36), (77, 29), (-82, 29), (-80, 26), (8.5, 47), (127, 38), (70, 22), (55, 25), (73, 19), (-118, 34), (-120, 39), (104, 1), (77, 29), (33, 16), (73, 33), (116, 40), (4, 51), (-77, 39), (-98, 30), (77, 29), (114, 23), (0, 0), (4, 51), (13.4, 52.5), (121, 14.6), (121, 14.6), (121, 14.6), (-0.1, 51.5), (151.2, -33.9), (149, -35), (-87.6, 41.9), (-121.5, 38.6)]
+    for number, (longitude, latitude) in enumerate(brief_locations, start=14):
         horizontal, vertical = project(longitude, latitude)
         center_horizontal = map_left + horizontal / 100 * map_width
         center_vertical = map_top + vertical / 100 * map_height
-        page.ellipse((center_horizontal - 1.6, center_vertical - 1.6, center_horizontal + 1.6, center_vertical + 1.6), GREY)
+        radius = 1.6
+        if (longitude, latitude) == (149, -35):
+            radius = 2.8 if number == 17 else 1.2
+        page.ellipse((center_horizontal - radius, center_vertical - radius, center_horizontal + radius, center_vertical + radius), REGION_COLORS[number][1])
     pins = {
         1: ((84.9, 19.3), (75, 63)), 2: ((-77, 38.9), (18, 27)),
         3: ((46.6, 24.7), (64, 62)), 4: ((4.3, 52.1), (46, 12)),
@@ -599,32 +607,47 @@ def draw_map(page, box):
             anchor_horizontal = map_left + anchor_horizontal / 100 * map_width
             anchor_vertical = map_top + anchor_vertical / 100 * map_height
             page.line([(center_horizontal, center_vertical), (anchor_horizontal, anchor_vertical)], SEA, 0.45)
-            page.ellipse((anchor_horizontal - 1, anchor_vertical - 1, anchor_horizontal + 1, anchor_vertical + 1), RED)
+            page.ellipse((anchor_horizontal - 1.5, anchor_vertical - 1.5, anchor_horizontal + 1.5, anchor_vertical + 1.5), REGION_COLORS[number][1])
         radius = 8 if number >= 10 else 7
         page.ellipse((center_horizontal - radius, center_vertical - radius, center_horizontal + radius, center_vertical + radius), RED, PAPER, 0.6)
         page.text(str(number), (center_horizontal - radius + 1, center_vertical - 5, center_horizontal + radius - 1, center_vertical + 6), "sans_bold", 9.5, WHITE, align="center", max_lines=1)
-    page.text("Red numbers mark stories 1–13; grey dots mark briefs.", (left + 8, bottom - 26, right - 8, bottom - 6), "sans", 9.5, SEA, 10.5, max_lines=2)
+    legend_top = map_top + map_height + 11
+    page.line([(left + 9, legend_top), (right - 9, legend_top)], SEA, 0.5)
+    for index, (name, _, _, color, _) in enumerate(REGIONS):
+        row, column = divmod(index, 4)
+        horizontal = left + 9 + (0, 52, 109, 183)[column]
+        vertical = legend_top + 7 + row * 12
+        page.ellipse((horizontal, vertical + 2, horizontal + 4, vertical + 6), color)
+        label = name.removeprefix("THE ").title()
+        page.text(label, (horizontal + 7, vertical, right - 8, vertical + 10), "sans", 9.5, SEA, max_lines=1)
+    page.text("Red numbers mark stories 1–13; dots mark briefs.", (left + 9, legend_top + 34, right - 8, bottom - 6), "sans", 9.5, SEA, max_lines=1)
 
 
 def render():
-    if len(STORIES) + len(BRIEFS) != 40 or sum(count for _, count, _ in REGIONS) != 40:
-        raise ValueError("Story and region counts must both be 40")
+    if len(STORIES) != 13 or len(BRIEFS) != 37 or sum(count for _, count, _, _, _ in REGIONS) != 50:
+        raise ValueError("Expected 13 cards, 37 briefs, and 50 stories")
     page = Page()
     measurements = {}
     page.text("THE WORLD IN ONE DAY", (20, 12, 350, 27), "sans_bold", 13, RED, max_lines=1)
-    page.text("FRIDAY'S NEWS · ONE PAGE · 40 STORIES", (600, 12, 1004, 27), "sans_bold", 13, INK, align="right", max_lines=1)
+    page.text("FRIDAY'S NEWS · ONE PAGE · 50 STORIES", (600, 12, 1004, 27), "sans_bold", 13, INK, align="right", max_lines=1)
     page.line([(20, 29), (1004, 29)], INK, 2)
     measurements["brand bottom"] = 30
-    page.text("Friday 20 November 2026", (20, 33, 1004, 117), "serif_cond_bold", 84, INK, align="center", max_lines=1)
-    page.text("Akvan comes ashore · Trump puts Iran off to 2027 · A missile over Riyadh", (20, 119, 1004, 140), "serif_cond_bitalic", 19, RED, align="center", max_lines=1)
+    page.text("Friday 20 November 2026", (20, 33, 1004, 104), "serif_cond_bold", 70, INK, align="center", max_lines=1)
+    page.text("Akvan comes ashore · Trump puts Iran off to 2027 · A missile over Riyadh", (20, 104, 1004, 118), "serif_cond_bitalic", 11, RED, align="center", max_lines=1)
+    for index, (label, event) in enumerate(TIMELINE):
+        slot_left = 20 + index * 164
+        if index:
+            page.line([(slot_left, 120), (slot_left, 139)], RULE, 0.5)
+        page.text(label, (slot_left + 3, 120, slot_left + 161, 129), "sans_cond_bold", 9.5, RED, max_lines=1)
+        page.text(event, (slot_left + 3, 130, slot_left + 161, 140), "sans_cond", 9.5, INK, max_lines=1)
     measurements["masthead bottom"] = 140
     region_widths = [160, 191, 230, 113, 88, 117, 85]
     horizontal = 20
-    for (name, count, color), tab_width in zip(REGIONS, region_widths):
+    for (name, count, color, _, _), tab_width in zip(REGIONS, region_widths):
         page.rectangle((horizontal, 141, horizontal + tab_width, 158), color)
         page.text(f"{name} {count}", (horizontal + 3, 143, horizontal + tab_width - 3, 156), "sans_bold", 12, WHITE, align="center", max_lines=1)
         horizontal += tab_width
-    page.text("40 STORIES FROM 7 REGIONS", (20, 160, 1004, 170), "sans_bold", 9.5, GREY, align="center", max_lines=1)
+    page.text("50 STORIES FROM 7 REGIONS", (20, 160, 1004, 170), "sans_bold", 9.5, GREY, align="center", max_lines=1)
     stat_width = 984 / 6
     for index, (number, caption) in enumerate(STATS):
         left = 20 + index * stat_width
@@ -635,25 +658,26 @@ def render():
     page.line([(20, 223), (1004, 223)], INK, 0.8)
     measurements["stat band bottom"] = 224
     cursor = 227
-    art_height = 78
+    art_height = 55
     lead_bottom = cursor + max(card_height(story, art_height) for story in STORIES[:3])
     for index, story in enumerate(STORIES[:3]):
         draw_card(page, story, 20 + index * (984 + 10) / 3, cursor, (984 - 20) / 3, art_height, lead_bottom)
     measurements["lead row bottom"] = lead_bottom
-    cursor = lead_bottom + 7
-    page.line([(20, cursor - 3), (1004, cursor - 3)], RULE, 0.7)
+    cursor = lead_bottom + 4
+    page.line([(20, cursor - 2), (1004, cursor - 2)], RULE, 0.7)
     for row_index in range(2):
         stories = STORIES[3 + row_index * 5:8 + row_index * 5]
-        row_bottom = cursor + max(card_height(story, 40) for story in stories)
+        row_bottom = cursor + max(card_height(story, 28) for story in stories)
         for column_index, story in enumerate(stories):
-            draw_card(page, story, 20 + column_index * (984 + 10) / 5, cursor, (984 - 40) / 5, 40, row_bottom)
-        cursor = row_bottom + 7
+            draw_card(page, story, 20 + column_index * (984 + 10) / 5, cursor, (984 - 40) / 5, 28, row_bottom)
+        cursor = row_bottom + 4
     measurements["grid bottom"] = cursor - 7
     bottom_top = cursor
     map_width = 250
     brief_left = 20 + map_width + 10
-    page.text("ALSO ON FRIDAY 20 NOVEMBER — 27 MORE STORIES", (brief_left, bottom_top, 1004, bottom_top + 14), "sans_bold", 11, RED, max_lines=1)
-    bottom_end = draw_briefs(page, brief_left, bottom_top + 16, 1004 - brief_left)
+    page.text("ALSO ON FRIDAY 20 NOVEMBER — 37 BRIEFS", (brief_left, bottom_top, 1004, bottom_top + 14), "sans_bold", 11, RED, max_lines=1)
+    briefs_end = draw_briefs(page, brief_left, bottom_top + 16, 1004 - brief_left)
+    bottom_end = max(briefs_end, bottom_top + 205)
     draw_map(page, (20, bottom_top, 20 + map_width, bottom_end))
     measurements["bottom-zone bottom"] = bottom_end
     legend_top = bottom_end + 3
@@ -667,12 +691,12 @@ def render():
     date_label_width = measure(date_label, "sans_bold", 11)
     page.text(date_label, (26, date_top + 4, 27 + date_label_width, date_top + 16), "sans_bold", 11, RED, max_lines=1)
     prefix = "FIRST REPORTED THURSDAY 19 NOV — "
-    date_text = prefix + DATE_CHECK
-    date_lines = wrap(date_text, 965 - date_label_width - 10, "sans", 10.5)
-    if len(date_lines) != 2:
-        raise ValueError("DATE CHECK must occupy two lines")
-    page.text(date_lines[0], (36 + date_label_width, date_top + 4, 997, date_top + 16), "sans", 10.5, INK, max_lines=1)
-    page.text(date_lines[1], (26, date_top + 17, 997, date_top + 29), "sans", 10.5, INK, max_lines=1)
+    date_lines = wrap(prefix + DATE_CHECK, 950 - date_label_width - 10, "sans_cond", 9.5)
+    if len(date_lines) > 2:
+        raise ValueError("DATE CHECK must occupy at most two lines")
+    for index, line in enumerate(date_lines):
+        left = 36 + date_label_width if index == 0 else 26
+        page.text(line, (left, date_top + 3 + index * 11, 997, date_top + 14 + index * 11), "sans_cond", 9.5, INK, max_lines=1)
     footer_top = date_top + 32
     page.text(SOURCES, (20, footer_top, 1004, footer_top + 11), "sans", 10, GREY, max_lines=1)
     page.text(FOOTER, (20, footer_top + 12, 1004, footer_top + 23), "sans", 10, GREY, max_lines=1)

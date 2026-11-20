@@ -1,6 +1,6 @@
 # The world in one day — Friday 20 November 2026
 
-A 1024×1024 cream-paper news front page: **40 stories from 7 regions**, with 13 original illustrated cards, 27 numbered briefs, six statistics, a dotted locator map, source and status labels, and a Thursday date check. Story copy and attribution follow the supplied competition brief; selected briefs omit trailing clauses to fit the page.
+A 1024×1024 cream-paper news front page: **50 stories from 7 regions**, with 13 original illustrated cards, 37 numbered briefs, a UTC timeline, six statistics, a region-coloured locator map, source and status labels, and a Thursday date check. Story copy and attribution follow the supplied competition brief.
 
 `python3 gen.py` deterministically renders `entry.png` with Pillow and system fonts, checks every text block and illustration inset, and prints section measurements and the image hash. All 13 card decks retain their supplied wording. The dense format uses up to five secondary deck lines and 9.5px brief text; all type is at least 9.5px. `layout.json` records the measured layout.
 
