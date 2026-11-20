@@ -1,0 +1,29 @@
+{
+  "measurements": {
+    "brand bottom": 30,
+    "masthead bottom": 140,
+    "stat band bottom": 224,
+    "lead row bottom": 439,
+    "grid bottom": 750.5,
+    "bottom-zone bottom": 938.0,
+    "footer end": 1009.0
+  },
+  "budgets": {
+    "brand bottom": 30,
+    "masthead bottom": 140,
+    "stat band bottom": 224,
+    "lead row bottom": 440,
+    "grid bottom": 752,
+    "bottom-zone bottom": 941,
+    "footer end": 1012
+  },
+  "text_blocks": 442,
+  "minimum_font_px": 9.5,
+  "checked_art_elements": 272,
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "bytes": 870782,
+  "sha256": "e4b982824df2c4e5539c905bfeada241f906c1e1a8fa88cd0cf3f0554091eefa"
+}
